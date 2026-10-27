@@ -1,0 +1,139 @@
+generator client {
+    provider = "prisma-client"
+    output = "../src/generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+model User {
+    id String @id
+    name String
+    email String @unique
+    emailVerified Boolean @default(false)
+    image String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    sessions Session[]
+    accounts Account[]
+    tasks Task[]
+    boards Board[]
+    statuses Status[]
+    telegram TelegramConnection?
+}
+
+model Session {
+    id String @id
+    expiresAt DateTime
+    token String @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    ipAddress String?
+    userAgent String?
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    @@index([userId])
+}
+
+model Account {
+    id String @id
+    accountId String
+    providerId String
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    accessToken String?
+    refreshToken String?
+    idToken String?
+    accessTokenExpiresAt DateTime?
+    refreshTokenExpiresAt DateTime?
+    scope String?
+    password String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    @@index([userId])
+    @@unique([providerId, accountId])
+}
+
+model Verification {
+    id String @id
+    identifier String
+    value String
+    expiresAt DateTime
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    @@index([identifier])
+}
+
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+model Status {
+    id String @id @default(cuid())
+    name String @db.VarChar(80)
+    color String @db.VarChar(20)
+    closes Boolean @default(false)
+    key String? @db.VarChar(40)
+    sortOrder Int @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    boards Board[]
+    tasks Task[]
+    @@index([userId, sortOrder])
+}
+
+model Board {
+    id String @id @default(cuid())
+    name String @db.VarChar(80)
+    statusId String
+    status Status @relation(fields: [statusId], references: [id], onDelete: Restrict)
+    sortOrder Int @default(0)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tasks Task[]
+    @@index([userId, sortOrder])
+    @@index([statusId])
+}
+
+model Task {
+    id String @id @default(cuid())
+    title String @db.VarChar(160)
+    description String @default("") @db.VarChar(2000)
+    statusId String
+    status Status @relation(fields: [statusId], references: [id], onDelete: Restrict)
+    priority Priority @default(MEDIUM)
+    dueDate DateTime?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    boardId String?
+    board Board? @relation(fields: [boardId], references: [id], onDelete: SetNull)
+    @@index([userId, createdAt])
+    @@index([boardId])
+    @@index([statusId])
+}
+
+model TelegramConnection {
+    userId String @id
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    botToken String @db.VarChar(200)
+    chatId String @db.VarChar(40)
+    botUsername String? @db.VarChar(80)
+    webhookSecret String? @unique @db.VarChar(64)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model AiUsage {
+    userId String @id
+    windowStart DateTime
+    count Int
+}
