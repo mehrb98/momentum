@@ -34,7 +34,7 @@ export function TaskBoard({ columns, pending, onMoveTask, onReorderColumns }: Ta
                     <Card
                         key={col.id}
                         variant="secondary"
-                        className={`w-72 shrink-0 md:w-auto md:min-w-56 md:flex-1 max-h-130 min-h-72 gap-0 overflow-hidden p-0 md:h-[min(640px,calc(100dvh-10rem))] md:max-h-none ${
+                        className={`w-[85vw] max-w-80 shrink-0 md:w-auto md:min-w-56 md:max-w-96 md:flex-1 max-h-130 min-h-72 gap-0 overflow-hidden p-0 md:h-[min(640px,calc(100dvh-10rem))] md:max-h-none ${
                             isOver ? "ring-2 ring-accent" : ""
                         } ${drag?.kind === "column" && drag.id === col.id ? "opacity-60" : ""}`}
                         onDragOver={(event) => {
