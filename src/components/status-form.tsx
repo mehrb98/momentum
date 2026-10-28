@@ -4,7 +4,7 @@ import * as HeroUI from "@heroui/react";
 import { FormField } from "@/components/form-field";
 import { useStatusForm } from "@/hooks/tasks/useStatusForm";
 import type { StatusFormProps } from "@/types/status.types";
-import { CellColorPicker } from "@/components/cell-color-picker";
+import { ColorFormField } from "@/components/color-form-field";
 
 const FORM_ID = "status-form";
 
@@ -34,10 +34,8 @@ function StatusFormBody({ status, onClose }: Pick<StatusFormProps, "status" | "o
             <HeroUI.Modal.Body>
                 <HeroUI.Form id={FORM_ID} onSubmit={onSubmit} className="flex flex-col gap-4">
                     <FormField control={control} name="name" label="Name" autoFocus placeholder="Status name" />
-                    
-                    <CellColorPicker.Popover>
-                        <CellColorPicker.Swatch />
-                    </CellColorPicker.Popover>
+
+                    <ColorFormField control={control} name="color" label="Color" />
 
                     {errors.root?.message && (
                         <HeroUI.Alert status="danger">
