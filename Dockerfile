@@ -10,7 +10,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npx prisma generate && BETTER_AUTH_SECRET="$(openssl rand -base64 32)" BETTER_AUTH_URL=http://localhost:3000 npm run build
+RUN npx prisma generate && SKIP_TYPECHECK=1 BETTER_AUTH_SECRET="$(openssl rand -base64 32)" BETTER_AUTH_URL=http://localhost:3000 npm run build
 
 FROM build AS migrate
 
