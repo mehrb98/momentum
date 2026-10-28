@@ -42,9 +42,25 @@ async function ownedBoardId(userId: string, boardId?: string) {
     return board.id;
 }
 
-export async function saveOwnedTask(userId: string, task: TaskInput & { status?: TaskStatus; boardId?: string }, id?: string) {
+export async function saveOwnedTask(
+    userId: string,
+    task: TaskInput & { status?: TaskStatus; boardId?: string },
+    id?: string,
+) {
     const statusId = await ownedStatusId(userId, task.status);
-    const data = taskData({ ...task, status: statusId, boardId: await ownedBoardId(userId, task.boardId) });
+    // a new task without a board goes to the board of its status, like createOwnedTasks
+    const boardId =
+        (await ownedBoardId(userId, task.boardId)) ??
+        (!id && statusId
+            ? (
+                  await db.board.findFirst({
+                      where: { userId, statusId },
+                      orderBy: { sortOrder: "asc" },
+                      select: { id: true },
+                  })
+              )?.id
+            : undefined);
+    const data = taskData({ ...task, status: statusId, boardId });
 
     if (!id) return db.task.create({ data: { ...data, userId, statusId: statusId! } });
 

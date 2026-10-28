@@ -34,6 +34,16 @@ describe("task ownership boundaries", () => {
             data: { ...task, dueDate: null, userId: "owner", statusId: undefined },
         });
     });
+    it("puts a new task without a board on the board of its status", async () => {
+        mocks.boardFindFirst.mockResolvedValueOnce({ id: "done-board" });
+        await saveOwnedTask("owner", { ...task, status: "done" });
+        expect(mocks.boardFindFirst).toHaveBeenCalledWith(
+            expect.objectContaining({ where: { userId: "owner", statusId: "done" } }),
+        );
+        expect(mocks.create).toHaveBeenLastCalledWith({
+            data: { ...task, dueDate: null, statusId: "done", boardId: "done-board", userId: "owner" },
+        });
+    });
     it("constrains edits by owner and task id", async () => {
         await saveOwnedTask("owner", task, "task-id");
         expect(mocks.updateMany).toHaveBeenCalledWith({

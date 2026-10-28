@@ -8,7 +8,16 @@ import type { StatusEditor, StatusView } from "@/types/status.types";
 import { deleteBoard } from "@/actions/board.actions";
 import { deleteStatus } from "@/actions/status.actions";
 import { changeTaskStatus, deleteTask } from "@/actions/task.actions";
-import type { DeleteItemKind, DeleteTaskDialogProps, TaskEditor, TaskFilters, TaskPlacement, TaskStatus, TaskView } from "@/types/task.types";
+
+import type {
+    DeleteItemKind,
+    DeleteTaskDialogProps,
+    TaskEditor,
+    TaskFilters,
+    TaskPlacement,
+    TaskStatus,
+    TaskView,
+} from "@/types/task.types";
 
 export const priorities = [
     { id: "LOW", title: "Low", color: "success" },
@@ -70,10 +79,14 @@ export function useTaskBoard(tasks: TaskView[], boards: BoardView[], statuses: S
     const [editor, setEditor] = useState<TaskEditor>({ isOpen: false, key: 0, status: firstStatusId });
     const [boardEditor, setBoardEditor] = useState<BoardEditor>({ isOpen: false, key: 0 });
     const [statusEditor, setStatusEditor] = useState<StatusEditor>({ isOpen: false, key: 0 });
-    const [deleting, setDeleting] = useState<Pick<DeleteTaskDialogProps, "isOpen" | "kind" | "name"> & { id?: string }>({
-        isOpen: false,
-        kind: "task",
-    });
+    
+    const [deleting, setDeleting] = useState<Pick<DeleteTaskDialogProps, "isOpen" | "kind" | "name"> & { id?: string }>(
+        {
+            isOpen: false,
+            kind: "task",
+        },
+    );
+    
     const [today, setToday] = useState("");
     const [placements, setPlacements] = useState<Record<string, TaskPlacement>>({});
     const [columnOrder, setColumnOrder] = useState<string[]>([]);
@@ -203,7 +216,7 @@ export function useTaskBoard(tasks: TaskView[], boards: BoardView[], statuses: S
             return status && !status.closes && status.sortOrder > 0;
         }).length,
         completion: tasks.length ? Math.round((done / tasks.length) * 100) : 0,
-        onNewTask: () => openEditor(boards[0]?.statusId ?? firstStatusId, undefined, boards[0]?.id),
+        onNewTask: () => openEditor(boards[0]?.statusId ?? firstStatusId),
         onNewBoard: () => setBoardEditor((prev) => ({ isOpen: true, key: prev.key + 1 })),
         onEditBoard: (board: BoardView) => setBoardEditor((prev) => ({ isOpen: true, key: prev.key + 1, board })),
         onDeleteBoard: (board: BoardView) => askDelete("board", board.id, board.name),
