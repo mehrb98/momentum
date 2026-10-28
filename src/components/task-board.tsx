@@ -13,12 +13,12 @@ export function TaskBoard({ columns, pending, onMoveTask, onReorderColumns }: Ta
 
     function onDropColumn(boardId: string, event: React.DragEvent) {
         event.preventDefault();
-        
+
         const payload = readPayload(event) ?? drag;
-        
+
         setOver(null);
         setDrag(null);
-        
+
         if (!payload) return;
 
         if (payload.kind === "task") onMoveTask(payload.id, boardId);
@@ -34,7 +34,7 @@ export function TaskBoard({ columns, pending, onMoveTask, onReorderColumns }: Ta
                     <Card
                         key={col.id}
                         variant="secondary"
-                        className={`w-72 shrink-0 max-h-130 min-h-72 gap-0 overflow-hidden p-0 md:h-[min(640px,calc(100dvh-10rem))] md:max-h-none ${
+                        className={`w-72 shrink-0 md:w-auto md:min-w-56 md:flex-1 max-h-130 min-h-72 gap-0 overflow-hidden p-0 md:h-[min(640px,calc(100dvh-10rem))] md:max-h-none ${
                             isOver ? "ring-2 ring-accent" : ""
                         } ${drag?.kind === "column" && drag.id === col.id ? "opacity-60" : ""}`}
                         onDragOver={(event) => {
@@ -63,15 +63,15 @@ export function TaskBoard({ columns, pending, onMoveTask, onReorderColumns }: Ta
                             >
                                 <GripHorizontal className="size-4" />
                             </span>
-                            
+
                             <StatusIcon color={col.status.color} />
-                            
+
                             <Typography type="body-sm" weight="semibold">
                                 {col.title}
                             </Typography>
-                            
+
                             <Chip size="sm">{col.tasks.length}</Chip>
-                            
+
                             <Button variant="ghost" size="sm" className="ml-auto" onPress={col.onAdd}>
                                 ＋ Add
                             </Button>

@@ -38,7 +38,7 @@ const views: { id: WorkspaceView; title: string; Icon: typeof House }[] = [
 
 export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }: DashboardProps) {
     const [view, setView] = useState<WorkspaceView>("overview");
-    
+
     const board = useTaskBoard(tasks, boards, statuses);
     const current = views.find((item) => item.id === view) ?? views[0];
     const allTasks = board.columns.flatMap((column) => column.tasks);
@@ -53,7 +53,12 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
     const stats = [
         { label: "Total tasks", value: board.total, note: "Your next steps, in one place" },
         { label: "In motion", value: board.inProgress, note: "A little progress every day" },
-        { label: "Completed", value: board.done, suffix: ` / ${board.total}`, note: `${board.completion}% of your tasks complete` },
+        {
+            label: "Completed",
+            value: board.done,
+            suffix: ` / ${board.total}`,
+            note: `${board.completion}% of your tasks complete`,
+        },
     ];
 
     return (
@@ -67,8 +72,12 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                     </Avatar>
 
                     <div className="flex flex-col">
-                        <Typography type="body" weight="semibold">Momentum</Typography>
-                        <Typography type="body-xs" color="muted">Task manager</Typography>
+                        <Typography type="body" weight="semibold">
+                            Momentum
+                        </Typography>
+                        <Typography type="body-xs" color="muted">
+                            Task manager
+                        </Typography>
                     </div>
                 </div>
 
@@ -101,7 +110,9 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                         {board.statusCounts.map((s) => (
                             <div key={s.id} className="flex items-center justify-between px-2 py-1">
                                 <StatusChip color={s.color}>{s.title}</StatusChip>
-                                <Typography type="body-xs" color="muted">{s.count}</Typography>
+                                <Typography type="body-xs" color="muted">
+                                    {s.count}
+                                </Typography>
                             </div>
                         ))}
                     </div>
@@ -109,8 +120,12 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
 
                 <Card variant="secondary" className="mt-auto gap-3 p-4">
                     <div className="flex items-baseline justify-between">
-                        <Typography type="body-sm" weight="medium">Progress</Typography>
-                        <Typography type="body-xs" color="muted">{board.completion}%</Typography>
+                        <Typography type="body-sm" weight="medium">
+                            Progress
+                        </Typography>
+                        <Typography type="body-xs" color="muted">
+                            {board.completion}%
+                        </Typography>
                     </div>
 
                     <ProgressBar aria-label="Tasks completed" value={board.completion} color="success" size="sm">
@@ -130,7 +145,7 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                 </div>
             </aside>
 
-            <main className="w-full min-w-0 max-w-[1600px] px-4 pb-28 sm:px-6 lg:px-10">
+            <main className="w-full min-w-0 max-w-[1600px] px-4 pb-28 sm:px-6 lg:px-8">
                 <header className="flex h-16 items-center justify-between gap-4 border-b border-separator">
                     <Breadcrumbs>
                         <Breadcrumbs.Item>Workspace</Breadcrumbs.Item>
@@ -147,14 +162,20 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                 <div className="flex flex-col gap-8 pt-8">
                     <section className="flex flex-wrap items-end justify-between gap-4">
                         <div className="flex flex-col gap-2">
-                            <Typography type="body-xs" weight="semibold" color="muted" className="uppercase tracking-widest">
+                            <Typography
+                                type="body-xs"
+                                weight="semibold"
+                                color="muted"
+                                className="uppercase tracking-widest"
+                            >
                                 Make space for what matters
                             </Typography>
 
                             <Typography.Heading level={1}>{current.title}.</Typography.Heading>
 
                             <Typography.Paragraph size="sm" color="muted">
-                                {view === "overview" && `A clear view of what’s next. You’ve got this, ${name.split(" ")[0]}.`}
+                                {view === "overview" &&
+                                    `A clear view of what’s next. You’ve got this, ${name.split(" ")[0]}.`}
                                 {view === "tasks" && "Every task in one list."}
                                 {view === "boards" && "Name a board and give it a status."}
                                 {view === "status" && "Add statuses and use them on any board."}
@@ -181,7 +202,9 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                                         {stat.suffix && <span className="text-lg text-muted">{stat.suffix}</span>}
                                     </Card.Title>
 
-                                    <Typography type="body-xs" color="muted">{stat.note}</Typography>
+                                    <Typography type="body-xs" color="muted">
+                                        {stat.note}
+                                    </Typography>
                                 </Card>
                             ))}
                         </section>
