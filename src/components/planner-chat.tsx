@@ -20,21 +20,38 @@ import {
     Typography,
 } from "@heroui/react";
 
-
 export function PlannerChat({ aiEnabled }: PlannerChatProps) {
     const planner = useTaskPlanner();
     const scrollRef = useRef<HTMLDivElement>(null);
+    const rootRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         scrollRef.current?.scrollTo({
             top: scrollRef.current?.scrollHeight ?? 0,
             behavior: "smooth",
         });
-        
     }, [planner.messages.length, planner.thinking]);
 
+    const { isOpen, onClose } = planner;
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const closeOutside = (event: Event) => {
+            if (!rootRef.current?.contains(event.target as Node)) onClose();
+        };
+
+        document.addEventListener("pointerdown", closeOutside);
+        document.addEventListener("focusin", closeOutside);
+
+        return () => {
+            document.removeEventListener("pointerdown", closeOutside);
+            document.removeEventListener("focusin", closeOutside);
+        };
+    }, [isOpen, onClose]);
+
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+        <div ref={rootRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
             {planner.isOpen && (
                 <Card
                     role="dialog"
@@ -45,15 +62,15 @@ export function PlannerChat({ aiEnabled }: PlannerChatProps) {
                         <Avatar size="sm" color="accent" variant="soft">
                             <Avatar.Fallback>✧</Avatar.Fallback>
                         </Avatar>
-                        
+
                         <div className="flex flex-1 flex-col">
                             <Card.Title className="font-semibold">Assistant</Card.Title>
-                            
+
                             <Card.Description className="text-xs">
                                 {aiEnabled ? "Plans tasks, boards, and statuses" : "Not configured"}
                             </Card.Description>
                         </div>
-                        
+
                         <Button
                             isIconOnly
                             size="sm"
@@ -107,7 +124,6 @@ export function PlannerChat({ aiEnabled }: PlannerChatProps) {
                                 className="flex items-center gap-2 self-start rounded-2xl rounded-bl-md px-4 py-2.5 text-sm text-muted"
                             >
                                 <Spinner size="sm" />
-                                
                                 Working on it…
                             </Surface>
                         )}
@@ -137,18 +153,13 @@ export function PlannerChat({ aiEnabled }: PlannerChatProps) {
                                                 placeholder="Ask anything or tell me what to change…"
                                                 onKeyDown={planner.onPromptKeyDown}
                                             />
-                                            
+
                                             <FieldError>{fieldState.error?.message}</FieldError>
                                         </TextField>
                                     )}
                                 />
-                                
-                                <Button 
-                                    type="submit" 
-                                    isIconOnly 
-                                    aria-label="Send" 
-                                    isDisabled={planner.thinking}
-                                >
+
+                                <Button type="submit" isIconOnly aria-label="Send" isDisabled={planner.thinking}>
                                     ↑
                                 </Button>
                             </Form>
@@ -161,16 +172,25 @@ export function PlannerChat({ aiEnabled }: PlannerChatProps) {
                 </Card>
             )}
 
-            <Button
-                size="lg"
-                isIconOnly
-                onPress={planner.onToggle}
-                aria-expanded={planner.isOpen}
-                className="size-14 rounded-full text-xl shadow-lg"
-                aria-label={planner.isOpen ? "Close assistant" : "Open AI assistant"}
-            >
-                {planner.isOpen ? "✕" : "✧"}
-            </Button>
+            <span className="relative inline-flex">
+                {!planner.isOpen && (
+                    <span
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 rounded-full bg-accent opacity-60 motion-safe:animate-ping"
+                    />
+                )}
+
+                <Button
+                    size="lg"
+                    isIconOnly
+                    onPress={planner.onToggle}
+                    aria-expanded={planner.isOpen}
+                    className="relative size-14 rounded-full text-xl shadow-lg"
+                    aria-label={planner.isOpen ? "Close assistant" : "Open AI assistant"}
+                >
+                    {planner.isOpen ? "✕" : "✧"}
+                </Button>
+            </span>
         </div>
     );
 }
