@@ -9,12 +9,13 @@ import { BoardForm } from "./board-form";
 import { StatusCard } from "./status-card";
 import { StatusForm } from "./status-form";
 import { PlannerChat } from "./planner-chat";
+import { UsersPanel } from "./users-panel";
 import { OptionSelect } from "./option-select";
 import { StatusChip, TaskCard } from "./task-card";
 import { DeleteTaskDialog } from "./delete-task-dialog";
 import { useTaskBoard } from "@/hooks/tasks/useTaskBoard";
 import type { WorkspaceView, DashboardProps } from "@/types/dashboard.types";
-import { Circle, House, LayoutColumns3, ListCheck } from "@gravity-ui/icons";
+import { Circle, House, LayoutColumns3, ListCheck, Persons } from "@gravity-ui/icons";
 
 import {
     Alert,
@@ -34,10 +35,22 @@ const views: { id: WorkspaceView; title: string; Icon: typeof House }[] = [
     { id: "tasks", title: "Tasks", Icon: ListCheck },
     { id: "boards", title: "Boards", Icon: LayoutColumns3 },
     { id: "status", title: "Status", Icon: Circle },
+    { id: "users", title: "Users", Icon: Persons },
 ];
 
-export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }: DashboardProps) {
+export function Dashboard({
+    name,
+    userId,
+    isAdmin,
+    users,
+    tasks,
+    boards,
+    statuses,
+    telegram,
+    aiEnabled,
+}: DashboardProps) {
     const [view, setView] = useState<WorkspaceView>("overview");
+    const visibleViews = views.filter((item) => item.id !== "users" || isAdmin);
 
     const board = useTaskBoard(tasks, boards, statuses);
     const current = views.find((item) => item.id === view) ?? views[0];
@@ -48,6 +61,7 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
         tasks: board.total,
         boards: boards.length,
         status: statuses.length,
+        users: users.length,
     };
 
     const stats = [
@@ -86,7 +100,7 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                         Workspace
                     </Typography>
 
-                    {views.map(({ id, title, Icon }) => (
+                    {visibleViews.map(({ id, title, Icon }) => (
                         <Button
                             key={id}
                             fullWidth
@@ -179,6 +193,7 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                                 {view === "tasks" && "Every task in one list."}
                                 {view === "boards" && "Name a board and give it a status."}
                                 {view === "status" && "Add statuses and use them on any board."}
+                                {view === "users" && "Create accounts, set roles, and manage access."}
                             </Typography.Paragraph>
                         </div>
 
@@ -186,9 +201,9 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                             <Button onPress={board.onNewTask}>＋ New task</Button>
                         ) : view === "boards" ? (
                             <Button onPress={board.onNewBoard}>＋ New board</Button>
-                        ) : (
+                        ) : view === "status" ? (
                             <Button onPress={board.onNewStatus}>＋ New status</Button>
-                        )}
+                        ) : null}
                     </section>
 
                     {view === "overview" && (
@@ -331,6 +346,8 @@ export function Dashboard({ name, tasks, boards, statuses, telegram, aiEnabled }
                             ))}
                         </section>
                     )}
+
+                    {view === "users" && isAdmin && <UsersPanel users={users} currentUserId={userId} />}
 
                     <Typography type="body-xs" color="muted" align="center">
                         Showing up to 500 most recent tasks · Small steps. Real progress.

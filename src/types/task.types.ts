@@ -37,7 +37,7 @@ export type TaskFormProps = {
 
 export type TaskFormBodyProps = Omit<TaskFormProps, "isOpen" | "formKey">;
 
-export type DeleteItemKind = "task" | "board" | "status";
+export type DeleteItemKind = "task" | "board" | "status" | "user";
 
 export type DeleteTaskDialogProps = {
     isOpen: boolean;

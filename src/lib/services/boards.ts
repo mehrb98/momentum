@@ -1,44 +1,19 @@
 import "server-only";
 import { db } from "@/lib/db";
 import type { BoardFormInput, BoardView } from "@/types/board.types";
-import { listStatuses, ownedStatusId } from "@/lib/services/statuses";
+import { ownedStatusId } from "@/lib/services/statuses";
 
 function toBoardView(board: { id: string; name: string; statusId: string; sortOrder: number }): BoardView {
     return { id: board.id, name: board.name, statusId: board.statusId, sortOrder: board.sortOrder };
 }
 
 export async function listBoards(userId: string): Promise<BoardView[]> {
-    const existing = await db.board.findMany({
+    const boards = await db.board.findMany({
         where: { userId },
         orderBy: { sortOrder: "asc" },
     });
 
-    if (existing.length) return existing.map(toBoardView);
-
-    const statuses = await listStatuses(userId);
-
-    await db.board.createMany({
-        data: statuses.map((status, sortOrder) => ({
-            name: status.name,
-            statusId: status.id,
-            sortOrder,
-            userId,
-        })),
-    });
-
-    const created = await db.board.findMany({
-        where: { userId },
-        orderBy: { sortOrder: "asc" },
-    });
-
-    for (const board of created) {
-        await db.task.updateMany({
-            where: { userId, boardId: null, statusId: board.statusId },
-            data: { boardId: board.id },
-        });
-    }
-
-    return created.map(toBoardView);
+    return boards.map(toBoardView);
 }
 
 export async function createOwnedBoard(userId: string, board: BoardFormInput) {
@@ -87,7 +62,8 @@ export async function resolveBoardRef(userId: string, ref?: string) {
 
     const boards = await listBoards(userId);
     const needle = ref.trim().toLowerCase();
-    const match = boards.find((board) => board.id === ref) ?? boards.find((board) => board.name.toLowerCase() === needle);
+    const match =
+        boards.find((board) => board.id === ref) ?? boards.find((board) => board.name.toLowerCase() === needle);
 
     if (!match) throw new Error("Board not found");
 

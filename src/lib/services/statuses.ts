@@ -3,13 +3,21 @@ import { db } from "@/lib/db";
 import { toCssColor } from "@/utils/color";
 import type { StatusFormInput, StatusView } from "@/types/status.types";
 
-const defaultStatuses: { name: string; color: StatusView["color"]; closes: boolean; key: string; sortOrder: number }[] = [
-    { name: "To do", color: "#71717a", closes: false, key: "TODO", sortOrder: 0 },
-    { name: "In progress", color: "#f5a524", closes: false, key: "IN_PROGRESS", sortOrder: 1 },
-    { name: "Done", color: "#17c964", closes: true, key: "DONE", sortOrder: 2 },
-];
+const defaultStatuses: { name: string; color: StatusView["color"]; closes: boolean; key: string; sortOrder: number }[] =
+    [
+        { name: "To do", color: "#71717a", closes: false, key: "TODO", sortOrder: 0 },
+        { name: "In progress", color: "#f5a524", closes: false, key: "IN_PROGRESS", sortOrder: 1 },
+        { name: "Done", color: "#17c964", closes: true, key: "DONE", sortOrder: 2 },
+    ];
 
-function toStatusView(status: { id: string; name: string; color: string; closes: boolean; key: string | null; sortOrder: number }): StatusView {
+function toStatusView(status: {
+    id: string;
+    name: string;
+    color: string;
+    closes: boolean;
+    key: string | null;
+    sortOrder: number;
+}): StatusView {
     return {
         id: status.id,
         name: status.name,
@@ -21,23 +29,27 @@ function toStatusView(status: { id: string; name: string; color: string; closes:
 }
 
 export async function listStatuses(userId: string): Promise<StatusView[]> {
-    const existing = await db.status.findMany({
+    const statuses = await db.status.findMany({
         where: { userId },
         orderBy: { sortOrder: "asc" },
     });
 
-    if (existing.length) return existing.map(toStatusView);
+    return statuses.map(toStatusView);
+}
 
-    await db.status.createMany({
-        data: defaultStatuses.map((status) => ({ ...status, userId })),
+// called once from the sign-up hook; one transaction so parallel page loads can't seed twice
+export async function createDefaultWorkspace(userId: string) {
+    await db.$transaction(async (tx) => {
+        if (await tx.status.count({ where: { userId } })) return;
+
+        for (const status of defaultStatuses) {
+            const created = await tx.status.create({ data: { ...status, userId } });
+
+            await tx.board.create({
+                data: { name: status.name, statusId: created.id, sortOrder: status.sortOrder, userId },
+            });
+        }
     });
-
-    const created = await db.status.findMany({
-        where: { userId },
-        orderBy: { sortOrder: "asc" },
-    });
-
-    return created.map(toStatusView);
 }
 
 export async function updateOwnedStatus(userId: string, id: string, status: StatusFormInput) {
