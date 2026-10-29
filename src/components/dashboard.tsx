@@ -159,7 +159,7 @@ export function Dashboard({
                 </div>
             </aside>
 
-            <main className="w-full min-w-0 max-w-[1600px] px-4 pb-28 sm:px-6 lg:px-8">
+            <main className="mx-auto w-full min-w-0 max-w-[1600px] px-4 pb-28 sm:px-6 lg:px-8 2xl:px-12">
                 <header className="flex h-16 items-center justify-between gap-4 border-b border-separator">
                     <Breadcrumbs>
                         <Breadcrumbs.Item>Workspace</Breadcrumbs.Item>
@@ -284,7 +284,7 @@ export function Dashboard({
                                     onReorderColumns={board.onReorderColumns}
                                 />
                             ) : (
-                                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                                     {allTasks.map((task) => (
                                         <TaskCard
                                             key={task.id}
@@ -312,7 +312,7 @@ export function Dashboard({
                     )}
 
                     {view === "boards" && (
-                        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                             {boards.map((item) => {
                                 const status = statuses.find((s) => s.id === item.statusId);
 
@@ -332,7 +332,7 @@ export function Dashboard({
                     )}
 
                     {view === "status" && (
-                        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                             {statuses.map((status) => (
                                 <StatusCard
                                     key={status.id}

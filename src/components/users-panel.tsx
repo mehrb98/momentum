@@ -41,7 +41,7 @@ export function UsersPanel({ users, currentUserId }: UsersPanelProps) {
                 </Alert>
             )}
 
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
                 {users.map((user) => {
                     const isSelf = user.id === currentUserId;
 
